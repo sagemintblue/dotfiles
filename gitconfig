@@ -1,0 +1,31 @@
+[pull]
+	rebase = false
+[user]
+	name = Andrew Schlaikjer
+	email = andrew.schlaikjer@gmail.com
+[alias]
+	df = diff
+	dfs = diff --numstat
+        br = branch
+        brc = branch-curr
+        brn = branch-next
+        brp = branch-prev
+        ci = commit
+        co = checkout
+        con = !git co $(git brn)
+        cop = !git co $(git brp)
+        dfn = !git df $(git brn)
+        dfns = dfn --numstat
+        dfp = !git df $(git brp)
+        dfps = dfp --numstat
+        mr = merge
+        mrn = !git mr $(git brn)
+        mrp = !git mr $(git brp)
+        mrs = merge-seq
+        st = status
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
