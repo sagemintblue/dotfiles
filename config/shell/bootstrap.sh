@@ -11,7 +11,7 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 # Define common functions
 
-function log { echo "$@" 2>&1; }
+function log { echo "$@" >&2; }
 
 function die { log "$@"; exit 1; }
 
