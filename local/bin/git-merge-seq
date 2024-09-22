@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e -o pipefail
+
+function log { echo "$@" >&2; }
+function die { log "$@"; exit 1; }
+
+SCRIPT="$0"
+BRANCH_CURR=$(git-branch-curr) || die "Current branch is undefined"
+BRANCH_NEXT=$(git-branch-next) || die "Next branch is undefined"
+
+log "Merging '$BRANCH_CURR' into '$BRANCH_NEXT'"
+
+git co "$BRANCH_NEXT" && git mr "$BRANCH_CURR" && exec "$SCRIPT"

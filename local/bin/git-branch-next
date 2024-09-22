@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e -o pipefail
+
+BRANCH_CURR=$(git-branch-curr)
+
+git branch --no-color --list \
+    | sed 's/^\* *//;s/^ *//' \
+    | sort \
+    | grep -A 1 -m 1 "$BRANCH_CURR" \
+    | grep -v "$BRANCH_CURR"
