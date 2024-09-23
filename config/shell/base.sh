@@ -47,7 +47,6 @@ function path_prepend {
     path_update prepend "$@"
 }
 
-
 # Source configuration scripts
 
 CONF_SCRIPT_DIR="$XDG_CONFIG_HOME/shell"
