@@ -21,6 +21,8 @@ function has { type "$1" &>/dev/null; }
 
 function string_contains { [[ "$1" == *"$2"* ]]; }
 
+function shell_interactive { string_contains "$-" "i"; }
+
 function path_contains { string_contains ":$PATH:" ":$1:"; }
 
 function path_update {
@@ -45,7 +47,6 @@ function path_prepend {
     path_update prepend "$@"
 }
 
-function shell_interactive { string_contains "$-" "i"; }
 
 # Source configuration scripts
 
