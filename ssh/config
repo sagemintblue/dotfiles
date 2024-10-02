@@ -1,0 +1,17 @@
+Include ~/.ssh/config.local
+
+Host *
+  ControlMaster auto
+  ControlPath ~/.local/run/ssh-%r@%h:%p
+  ControlPersist 30m
+  IdentitiesOnly yes
+  IdentityFile ~/.ssh/keys/%k.pub
+  ServerAliveInterval 120
+
+Host sea
+  Port 4999
+  User hazen
+
+Host sky
+  Port 4999
+  User hazen
