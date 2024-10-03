@@ -1,34 +1,70 @@
 #!/usr/bin/env bash
 
-# Prints to stdout the first QR code visible on the screen.
-#
-# Depends on:
-# - `screencapture` macos utility [1].
-# - `zbarimg`, available view `brew install zbar` [2].
-#
-# [1] https://superuser.com/questions/164892/
-# [2] https://github.com/mchehab/zbar
-
 set -ueo pipefail
 
-function log { echo "$@" 1>&2; }
-function die { log "$@"; exit 1; }
+function log { :; }
+function die { echo "$@" >&2; exit 1; }
+
+CAPTURE_ARGS=""
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            cat <<'EOF'
+
+Attempts to write to stdout the value of the first QR code found on the screen.
+
+Options:
+
+  -h, --help
+    Prints this message.
+
+  -v, --verbose
+    Print log lines to stderr.
+
+  -i, --interactive
+    Triggers interactive screen capture, allowing some portion of the screen to be captured instead of the whole screen.
+
+Dependencies:
+
+  `screencapture`, a macos utility [1].
+
+  `zbarimg`, available view `brew install zbar` [2].
+
+[1] https://superuser.com/questions/164892/
+[2] https://github.com/mchehab/zbar
+
+EOF
+            exit
+            ;;
+        -v|--verbose)
+            shift
+            function log { echo "$@" >&2; }
+            ;;
+        -i|--interactive)
+            shift
+            CAPTURE_ARGS="-i"
+            ;;
+        *)
+            die "Unknown option '$1'"
+            ;;
+    esac
+done
 
 TEMP_IMG_FORMAT="png"
 TEMP_IMG_FILE=$(mktemp -t screencapture) || die "Failed to create temporary file"
+TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
 
 function cleanup {
-    log "Removing $TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
+    log "Removing $TARGET"
     rm -f "$TEMP_IMG_FILE"
 }
 
 trap cleanup EXIT
 trap cleanup SIGINT
 
-TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
-
 log "Writing $TARGET"
-screencapture -x -t "$TEMP_IMG_FORMAT" "$TEMP_IMG_FILE" \
+screencapture $CAPTURE_ARGS -x -t "$TEMP_IMG_FORMAT" "$TEMP_IMG_FILE" \
     || die "Failed to capture screen"
 log "Wrote $TARGET"
 
