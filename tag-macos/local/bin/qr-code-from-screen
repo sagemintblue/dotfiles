@@ -2,18 +2,14 @@
 
 set -ueo pipefail
 
-function log { :; }
-function die { echo "$@" >&2; exit 1; }
+function log { if [ "$1" -le "$LOG_LEVEL" ]; then shift; echo "$@" >&2; fi }
+function error { log 0 "$@"; }
+function info { log 1 "$@"; }
+function die { error "$@"; exit 1; }
 
-CAPTURE_ARGS=""
-TEMP_IMG_FORMAT="png"
-TEMP_IMG_FILE=$(mktemp -t screencapture) || die "Failed to create temporary file"
-TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
-
-function cleanup {
-    log "Removing $TARGET"
-    rm -f "$TEMP_IMG_FILE"
-}
+LOG_LEVEL=1
+SCREENCAPTURE_ARGS=""
+KEEP_SCREENSHOT=""
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -25,13 +21,13 @@ Attempts to write to stdout the value of the first QR code found on the screen.
 Options:
 
   -h, --help
-    Prints this message.
+    Print this message.
 
-  -v, --verbose
-    Print log lines to stderr.
+  -q, --quiet
+    Do not print info log lines to stderr.
 
   -i, --interactive
-    Triggers interactive screen capture, allowing some portion of the screen to be captured instead of the whole screen.
+    Enable interactive screen capture, allowing some portion of the screen to be captured instead of the whole screen.
 
   -k, --keep-screenshot
     Do not remove the temporary file containing the screenshot on exit.
@@ -48,17 +44,17 @@ Dependencies:
 EOF
             exit
             ;;
-        -v|--verbose)
+        -q|--quiet)
             shift
-            function log { echo "$@" >&2; }
+            LOG_LEVEL=0
             ;;
         -i|--interactive)
             shift
-            CAPTURE_ARGS="-i"
+            SCREENCAPTURE_ARGS="-i"
             ;;
         -k|--keep-screenshot)
             shift
-            function cleanup { :; }
+            KEEP_SCREENSHOT="yes"
             ;;
         *)
             die "Unknown option '$1'"
@@ -66,19 +62,31 @@ EOF
     esac
 done
 
+TEMP_IMG_FORMAT="png"
+TEMP_IMG_FILE=$(mktemp -t screencapture) || die "Failed to create temporary file"
+TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
+
+info "Created $TARGET"
+
+function cleanup {
+    [ -z "$KEEP_SCREENSHOT" ] || return
+    info "Removing $TARGET"
+    rm -f "$TEMP_IMG_FILE"
+}
+
 trap cleanup EXIT
 trap cleanup SIGINT
 
-log "Writing $TARGET"
-screencapture $CAPTURE_ARGS -x -t "$TEMP_IMG_FORMAT" "$TEMP_IMG_FILE" \
+info "Writing $TARGET"
+screencapture $SCREENCAPTURE_ARGS -x -t "$TEMP_IMG_FORMAT" "$TEMP_IMG_FILE" \
     || die "Failed to capture screen"
-log "Wrote $TARGET"
+info "Wrote $TARGET"
 
-log "Looking for QR codes in $TARGET"
+info "Looking for QR codes in $TARGET"
 {
     zbarimg -q "$TEMP_IMG_FILE" 2>/dev/null ||
         case "$?" in
-            4) log "No QR codes found in $TARGET" ;;
+            4) info "No QR codes found in $TARGET" ;;
             *) die "Failed to read QR code from screen capture" ;;
         esac
 } | perl -n -e 's/^QR-Code:// && print'
