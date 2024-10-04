@@ -6,6 +6,14 @@ function log { :; }
 function die { echo "$@" >&2; exit 1; }
 
 CAPTURE_ARGS=""
+TEMP_IMG_FORMAT="png"
+TEMP_IMG_FILE=$(mktemp -t screencapture) || die "Failed to create temporary file"
+TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
+
+function cleanup {
+    log "Removing $TARGET"
+    rm -f "$TEMP_IMG_FILE"
+}
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -24,6 +32,9 @@ Options:
 
   -i, --interactive
     Triggers interactive screen capture, allowing some portion of the screen to be captured instead of the whole screen.
+
+  -k, --keep-screenshot
+    Do not remove the temporary file containing the screenshot on exit.
 
 Dependencies:
 
@@ -45,20 +56,15 @@ EOF
             shift
             CAPTURE_ARGS="-i"
             ;;
+        -k|--keep-screenshot)
+            shift
+            function cleanup { :; }
+            ;;
         *)
             die "Unknown option '$1'"
             ;;
     esac
 done
-
-TEMP_IMG_FORMAT="png"
-TEMP_IMG_FILE=$(mktemp -t screencapture) || die "Failed to create temporary file"
-TARGET="$TEMP_IMG_FORMAT screenshot file '$TEMP_IMG_FILE'"
-
-function cleanup {
-    log "Removing $TARGET"
-    rm -f "$TEMP_IMG_FILE"
-}
 
 trap cleanup EXIT
 trap cleanup SIGINT
