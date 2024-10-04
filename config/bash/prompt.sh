@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Only evaluate for interactive shells
 shell_interactive || return
 
 # Syntactic sugar for ANSI escape sequences

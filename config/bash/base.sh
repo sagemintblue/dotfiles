@@ -11,10 +11,6 @@ export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 
 # Define common functions
 
-function log { echo "$@" >&2; }
-
-function die { log "$@"; exit 1; }
-
 function sourceif { [ -r "$1" ] && source "$1"; }
 
 function has { type "$1" &>/dev/null; }
@@ -49,7 +45,7 @@ function path_prepend {
 
 # Source configuration scripts
 
-CONF_SCRIPT_DIR="$XDG_CONFIG_HOME/shell"
+CONF_SCRIPT_DIR="$XDG_CONFIG_HOME/bash"
 sourceif "$CONF_SCRIPT_DIR/vscode.sh"
 sourceif "$CONF_SCRIPT_DIR/gcloud.sh"
 sourceif "$CONF_SCRIPT_DIR/brew.sh"
