@@ -3,9 +3,10 @@
 # Script which wraps synoshare to avoid leaking shared folder password via command history.
 #
 # [1] https://www.netmeister.org/blog/passing-passwords.html
-# [2] https://blog.gitguardian.com/secrets-at-the-command-line/
-# [3] https://blog.diogomonica.com/2017/03/27/why-you-shouldnt-use-env-variables-for-secret-data/
-# [4] https://unix.stackexchange.com/questions/232063/
+# [2] https://smallstep.com/blog/command-line-secrets/
+# [3] https://blog.gitguardian.com/secrets-at-the-command-line/
+# [4] https://blog.diogomonica.com/2017/03/27/why-you-shouldnt-use-env-variables-for-secret-data/
+# [5] https://unix.stackexchange.com/questions/232063/
 
 # Fail on error or use of undefined variable
 set -eu -o pipefail
